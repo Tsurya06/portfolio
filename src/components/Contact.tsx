@@ -1,10 +1,11 @@
 import { useState, type ComponentType } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Mail, MapPin, Linkedin, CheckCircle2, Sparkles } from 'lucide-react';
+import { Send, Mail, MapPin, Linkedin, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
 import { Github, Twitter, Dribbble } from './icons/BrandIcons';
 import SectionHeading from './SectionHeading';
 import { Reveal } from './motion/Reveal';
 import { personalInfo } from '@/data/portfolio';
+import { sendContactEmail } from '@/services/mailService';
 
 const socialIcons: Record<string, ComponentType<{ size?: number | string; className?: string }>> = {
   Github,
@@ -15,20 +16,49 @@ const socialIcons: Record<string, ComponentType<{ size?: number | string; classN
 };
 
 type FormState = { name: string; email: string; message: string };
-type Status = 'idle' | 'sending' | 'sent';
+type Status = 'idle' | 'sending' | 'sent' | 'error';
 
 export default function Contact() {
   const [form, setForm] = useState<FormState>({ name: '', email: '', message: '' });
   const [status, setStatus] = useState<Status>('idle');
+  const [feedback, setFeedback] = useState<string>('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.name || !form.email || !form.message) return;
+
     setStatus('sending');
-    setTimeout(() => {
-      setStatus('sent');
-      setForm({ name: '', email: '', message: '' });
-      setTimeout(() => setStatus('idle'), 3500);
-    }, 1200);
+    setFeedback('');
+
+    try {
+      const res = await sendContactEmail(form);
+      if (res.success) {
+        setStatus('sent');
+        setFeedback(res.message);
+        setForm({ name: '', email: '', message: '' });
+
+        if (res.fallbackMailto) {
+          window.location.href = res.fallbackMailto;
+        }
+
+        setTimeout(() => {
+          setStatus('idle');
+          setFeedback('');
+        }, 5000);
+      } else {
+        setStatus('error');
+        setFeedback(res.message);
+        setTimeout(() => {
+          setStatus('idle');
+        }, 6000);
+      }
+    } catch {
+      setStatus('error');
+      setFeedback('Failed to send message. Please reach out directly via email.');
+      setTimeout(() => {
+        setStatus('idle');
+      }, 6000);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -188,9 +218,12 @@ export default function Contact() {
 
             <motion.button
               type="submit"
-              disabled={status !== 'idle'}
-              className="flex items-center justify-center gap-2 w-full px-6 py-3.5 rounded-xl text-sm font-semibold relative overflow-hidden"
-              style={{ background: 'var(--accent)', color: 'var(--bg-0)' }}
+              disabled={status === 'sending'}
+              className="flex items-center justify-center gap-2 w-full px-6 py-3.5 rounded-xl text-sm font-semibold relative overflow-hidden transition-colors"
+              style={{
+                background: status === 'error' ? 'rgba(239, 68, 68, 0.9)' : 'var(--accent)',
+                color: 'var(--bg-0)',
+              }}
               whileHover={{ scale: status === 'idle' ? 1.02 : 1, boxShadow: '0 10px 40px var(--accent-glow)' }}
               whileTap={{ scale: 0.98 }}
             >
@@ -218,13 +251,39 @@ export default function Contact() {
                   </motion.span>
                 )}
                 {status === 'sent' && (
-                  <motion.span key="sent" className="flex items-center gap-2" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}>
+                  <motion.span key="sent" className="flex items-center gap-2 font-medium" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}>
                     <CheckCircle2 size={16} />
-                    Message Sent! I'll get back to you soon.
+                    Message Sent!
+                  </motion.span>
+                )}
+                {status === 'error' && (
+                  <motion.span key="error" className="flex items-center gap-2 font-medium" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}>
+                    <AlertCircle size={16} />
+                    Failed to Send — Click to Retry
                   </motion.span>
                 )}
               </AnimatePresence>
             </motion.button>
+
+            {/* Status feedback banner */}
+            <AnimatePresence>
+              {feedback && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6, height: 0 }}
+                  animate={{ opacity: 1, y: 0, height: 'auto' }}
+                  exit={{ opacity: 0, y: -6, height: 0 }}
+                  className="p-3 rounded-xl text-xs flex items-start gap-2 leading-relaxed"
+                  style={{
+                    background: status === 'error' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(0, 212, 170, 0.12)',
+                    border: `1px solid ${status === 'error' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(0, 212, 170, 0.3)'}`,
+                    color: status === 'error' ? '#fca5a5' : 'var(--accent)',
+                  }}
+                >
+                  {status === 'error' ? <AlertCircle size={14} className="shrink-0 mt-0.5" /> : <CheckCircle2 size={14} className="shrink-0 mt-0.5" />}
+                  <span>{feedback}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </form>
         </Reveal>
       </div>
