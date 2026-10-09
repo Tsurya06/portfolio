@@ -1,6 +1,6 @@
 export const personalInfo = {
-  name: 'Surya Tripathi',
-  firstName: 'Surya',
+  name: 'Suryakant Tripathi',
+  firstName: 'Suryakant',
   lastName: 'Tripathi',
   nickname: 'Surya',
   role: 'Frontend Software Engineer (React.js, TypeScript)',

@@ -40,7 +40,7 @@ export default function Footer() {
             >
               S
             </motion.span>
-            surya<span style={{ color: 'var(--accent)' }}>.dev</span>
+            Surya<span style={{ color: 'var(--accent)' }}>.dev</span>
           </motion.button>
 
           {/* Socials */}
