@@ -83,7 +83,7 @@ export const projects = [
     tech: ['React 19', 'TypeScript', 'Web Vitals', 'CSS Grid', 'Tailwind CSS', 'System Design'],
     featured: true,
     accent: '#00d4aa',
-    image: '/frontend-forge.png',
+    image: `${import.meta.env.BASE_URL}frontend-forge.png`,
     metrics: [
       { label: 'Interactive Labs', value: '20+' },
       { label: 'Core Coverage', value: 'JS & React 19' },

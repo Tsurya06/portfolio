@@ -254,7 +254,7 @@ export default function Character3D() {
 
         {/* 3D Foreground cutout face */}
         <img
-          src="/naruto-face-cutout.png"
+          src={`${import.meta.env.BASE_URL}naruto-face-cutout.png`}
           alt="Cheerful chibi ninja character"
           width={270}
           height={320}
