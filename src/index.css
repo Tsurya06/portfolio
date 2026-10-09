@@ -1,0 +1,223 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-0: #06060a;
+  --bg-1: #0c0c14;
+  --bg-2: #14141f;
+  --bg-3: #1c1c2a;
+  --bg-4: #262635;
+  --text-0: #f5f5fa;
+  --text-1: #b8b8c8;
+  --text-2: #6a6a7a;
+  --text-3: #3a3a4a;
+  --accent: #00d4aa;
+  --accent-2: #00b894;
+  --accent-dim: #00d4aa30;
+  --accent-glow: #00d4aa18;
+  --blue: #3b82f6;
+  --blue-glow: #3b82f618;
+  --amber: #f59e0b;
+  --amber-glow: #f59e0b18;
+  --rose: #f43f5e;
+  --rose-glow: #f43f5e18;
+  --border: #ffffff0a;
+  --border-bright: #ffffff15;
+  --gradient-1: linear-gradient(135deg, #00d4aa 0%, #3b82f6 100%);
+  --gradient-2: linear-gradient(135deg, #f59e0b 0%, #f43f5e 100%);
+  --gradient-3: linear-gradient(135deg, #00d4aa 0%, #3b82f6 50%, #a855f7 100%);
+}
+
+[data-theme='light'] {
+  --bg-0: #fafafb;
+  --bg-1: #ffffff;
+  --bg-2: #f4f4f8;
+  --bg-3: #eaeaef;
+  --bg-4: #dddde5;
+  --text-0: #14141e;
+  --text-1: #404050;
+  --text-2: #707080;
+  --text-3: #a0a0b0;
+  --accent: #00a884;
+  --accent-2: #008f70;
+  --accent-dim: #00a88425;
+  --accent-glow: #00a88410;
+  --blue: #2563eb;
+  --blue-glow: #2563eb10;
+  --amber: #d97706;
+  --amber-glow: #d9770610;
+  --rose: #e11d48;
+  --rose-glow: #e11d4810;
+  --border: #0000000a;
+  --border-bright: #00000012;
+  --gradient-1: linear-gradient(135deg, #00a884 0%, #2563eb 100%);
+  --gradient-2: linear-gradient(135deg, #d97706 0%, #e11d48 100%);
+  --gradient-3: linear-gradient(135deg, #00a884 0%, #2563eb 50%, #7c3aed 100%);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  background-color: var(--bg-0);
+  color: var(--text-0);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-1); }
+::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--bg-4); }
+
+.font-mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Gradient text */
+.gradient-text {
+  background: var(--gradient-1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gradient-text-2 {
+  background: var(--gradient-2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.gradient-text-3 {
+  background: var(--gradient-3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Surface card */
+.surface {
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+.surface:hover { border-color: var(--border-bright); }
+
+/* Glow hover */
+.glow-hover { transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+.glow-hover:hover {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 40px var(--accent-glow);
+}
+
+/* Grid background */
+.terminal-grid {
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Dot pattern */
+.dot-pattern {
+  background-image: radial-gradient(circle, var(--border-bright) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Mesh gradient background */
+.mesh-bg {
+  background:
+    radial-gradient(at 20% 20%, var(--accent-glow) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, var(--blue-glow) 0px, transparent 50%),
+    radial-gradient(at 0% 80%, var(--amber-glow) 0px, transparent 50%),
+    radial-gradient(at 80% 80%, var(--rose-glow) 0px, transparent 50%);
+}
+
+/* Section padding */
+.section-pad { padding: 5rem 1.5rem; }
+@media (min-width: 768px) { .section-pad { padding: 6rem 2rem; } }
+
+/* Animations */
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+.animate-blink { animation: blink 1s step-end infinite; }
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, var(--bg-2) 25%, var(--bg-3) 50%, var(--bg-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+.glow-pulse { animation: glowPulse 4s ease-in-out infinite; }
+
+@keyframes statusPulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent-dim); }
+  50% { box-shadow: 0 0 0 6px transparent; }
+}
+.status-dot { animation: statusPulse 2s ease-in-out infinite; }
+
+@keyframes floatUp {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.float-up { animation: floatUp 3s ease-in-out infinite; }
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animated-gradient {
+  background-size: 200% 200%;
+  animation: gradientMove 5s ease infinite;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+::selection { background: var(--accent); color: var(--bg-0); }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Glass effect */
+.glass {
+  background: rgba(12, 12, 20, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+[data-theme='light'] .glass {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* Marquee */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee { animation: marquee 20s linear infinite; }
+
+/* Character float */
+@keyframes charFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
