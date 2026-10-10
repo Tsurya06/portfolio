@@ -211,6 +211,8 @@ export default function CubeeCompanion() {
   // Position references for smooth spring chasing
   const posRef = useRef({ x: -100, y: -100 });
   const targetRef = useRef({ x: -100, y: -100 });
+  const isTabActiveRef = useRef(typeof document !== 'undefined' ? !document.hidden : true);
+  const hasPointerMovedInTabRef = useRef(false);
   const commentTimerRef = useRef<NodeJS.Timeout | null>(null);
   const rafRef = useRef<number | null>(null);
 
@@ -264,11 +266,36 @@ export default function CubeeCompanion() {
     };
   }, [enabled, isTouchDevice]);
 
-  // Desktop mouse chase listener & element inspector
+  // Desktop mouse chase listener & element inspector with tab-switch pause
   useEffect(() => {
     if (!enabled || isTouchDevice) return;
 
+    const stopTracking = () => {
+      isTabActiveRef.current = false;
+      hasPointerMovedInTabRef.current = false;
+      setVelocity({ vx: 0, vy: 0, speed: 0 });
+      setMood('idle');
+      if (commentTimerRef.current) clearTimeout(commentTimerRef.current);
+    };
+
+    const resumeTracking = () => {
+      if (document.visibilityState === 'visible') {
+        isTabActiveRef.current = true;
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopTracking();
+      } else {
+        resumeTracking();
+      }
+    };
+
     const handleMouseMove = (e: MouseEvent) => {
+      if (document.hidden || !isTabActiveRef.current) return;
+
+      hasPointerMovedInTabRef.current = true;
       targetRef.current = { x: e.clientX, y: e.clientY };
 
       // Check context under cursor
@@ -286,20 +313,42 @@ export default function CubeeCompanion() {
       }
     };
 
+    const handleMouseLeave = () => {
+      hasPointerMovedInTabRef.current = false;
+      setVelocity({ vx: 0, vy: 0, speed: 0 });
+      setMood('idle');
+    };
+
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('blur', stopTracking);
+    window.addEventListener('focus', resumeTracking);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('mouseleave', handleMouseLeave);
+
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('blur', stopTracking);
+      window.removeEventListener('focus', resumeTracking);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener('mouseleave', handleMouseLeave);
       if (commentTimerRef.current) clearTimeout(commentTimerRef.current);
     };
   }, [enabled, isTouchDevice]);
 
-  // Desktop physics loop: runs smoothly behind cursor
+  // Desktop physics loop: runs smoothly behind cursor when active
   useEffect(() => {
     if (!enabled || isTouchDevice) return;
 
     let particleId = 0;
 
     const tick = () => {
+      // Pause chasing when tab is inactive, hidden, or cursor has not entered tab yet
+      if (document.hidden || !isTabActiveRef.current || !hasPointerMovedInTabRef.current) {
+        setVelocity((prev) => (prev.speed === 0 ? prev : { vx: 0, vy: 0, speed: 0 }));
+        rafRef.current = requestAnimationFrame(tick);
+        return;
+      }
+
       const targetX = targetRef.current.x + 32;
       const targetY = targetRef.current.y + 32;
 

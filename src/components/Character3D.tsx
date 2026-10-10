@@ -83,17 +83,35 @@ export default function Character3D() {
     };
 
     const handleMouse = (event: MouseEvent) => {
-      if (!isVisible) return;
+      if (!isVisible || document.hidden) return;
       latestEvent = event;
       rafId ??= requestAnimationFrame(updateTransforms);
     };
 
+    const resetTransforms = () => {
+      latestEvent = null;
+      if (cardRef.current) cardRef.current.style.transform = 'rotateY(0deg) rotateX(0deg)';
+      if (glowRef.current) glowRef.current.style.transform = 'translateX(0px) scale(1)';
+      if (leftPupilRef.current) leftPupilRef.current.style.transform = 'translate3d(0,0,0)';
+      if (rightPupilRef.current) rightPupilRef.current.style.transform = 'translate3d(0,0,0)';
+      if (leftGlintRef.current) leftGlintRef.current.style.transform = 'translate(0,0)';
+      if (rightGlintRef.current) rightGlintRef.current.style.transform = 'translate(0,0)';
+    };
+
+    const handleVisibility = () => {
+      if (document.hidden) resetTransforms();
+    };
+
     window.addEventListener('mousemove', handleMouse, { passive: true });
+    window.addEventListener('blur', resetTransforms);
+    document.addEventListener('visibilitychange', handleVisibility);
 
     return () => {
       if (rafId !== null) cancelAnimationFrame(rafId);
       observer.disconnect();
       window.removeEventListener('mousemove', handleMouse);
+      window.removeEventListener('blur', resetTransforms);
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, []);
 

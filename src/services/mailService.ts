@@ -1,6 +1,8 @@
 export interface SendEmailPayload {
   readonly name: string;
   readonly email: string;
+  readonly company?: string;
+  readonly opportunityType?: string;
   readonly message: string;
 }
 
@@ -11,18 +13,22 @@ export interface SendEmailResult {
 }
 
 /**
- * Sends a contact message using free browser-compatible email delivery services:
+ * Sends a job opportunity / contact message using free browser-compatible email delivery services:
  * 1. Web3Forms (zero-setup free tier, simple access key)
  * 2. EmailJS (popular free tier, 200 emails/month)
  * 3. Graceful fallback to mailto link if no API keys are provided
  */
 export async function sendContactEmail(payload: SendEmailPayload): Promise<SendEmailResult> {
-  const { name, email, message } = payload;
+  const { name, email, company = '', opportunityType = 'Full-Time Role', message } = payload;
 
   const web3FormsKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
   const emailjsServiceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
   const emailjsTemplateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
   const emailjsPublicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+  const subjectLine = company
+    ? `💼 [Job Offer / ${opportunityType}] from ${company} (${name})`
+    : `💼 [Job Opportunity / ${opportunityType}] from ${name}`;
 
   // 1. Try Web3Forms if configured
   if (web3FormsKey) {
@@ -37,9 +43,11 @@ export async function sendContactEmail(payload: SendEmailPayload): Promise<SendE
           access_key: web3FormsKey,
           name,
           email,
+          company: company || 'Not provided',
+          opportunity_type: opportunityType,
           message,
-          subject: `Portfolio Contact from ${name}`,
-          from_name: `${name} (via Portfolio)`,
+          subject: subjectLine,
+          from_name: `${name} ${company ? `(${company})` : ''}`,
         }),
       });
 
@@ -47,17 +55,17 @@ export async function sendContactEmail(payload: SendEmailPayload): Promise<SendE
       if (response.ok && data.success) {
         return {
           success: true,
-          message: 'Your message has been sent successfully! Suryakant will reply soon.',
+          message: 'Thank you for reaching out! Your opportunity details have been sent to Suryakant.',
         };
       }
       return {
         success: false,
-        message: data.message || 'Failed to send message via Web3Forms.',
+        message: data.message || 'Failed to submit form via Web3Forms.',
       };
     } catch (err) {
       return {
         success: false,
-        message: err instanceof Error ? err.message : 'Network error while sending email.',
+        message: err instanceof Error ? err.message : 'Network error while sending message.',
       };
     }
   }
@@ -77,6 +85,8 @@ export async function sendContactEmail(payload: SendEmailPayload): Promise<SendE
           template_params: {
             from_name: name,
             from_email: email,
+            company,
+            opportunity_type: opportunityType,
             message,
             to_name: 'Suryakant Tripathi',
             reply_to: email,
@@ -87,7 +97,7 @@ export async function sendContactEmail(payload: SendEmailPayload): Promise<SendE
       if (response.ok) {
         return {
           success: true,
-          message: 'Your message has been sent successfully! Suryakant will reply soon.',
+          message: 'Thank you for reaching out! Your opportunity details have been sent to Suryakant.',
         };
       }
 
@@ -105,8 +115,10 @@ export async function sendContactEmail(payload: SendEmailPayload): Promise<SendE
   }
 
   // 3. Fallback: mailto link when no provider keys are set in environment
-  const subject = encodeURIComponent(`Portfolio Message from ${name}`);
-  const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+  const subject = encodeURIComponent(subjectLine);
+  const body = encodeURIComponent(
+    `Name: ${name}\nEmail: ${email}\nCompany: ${company || 'N/A'}\nOpportunity Type: ${opportunityType}\n\nDetails / Job Description:\n${message}`
+  );
   const mailtoUrl = `mailto:suryakant.trip@gmail.com?subject=${subject}&body=${body}`;
 
   return {
