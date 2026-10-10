@@ -1,8 +1,7 @@
 export interface SendEmailPayload {
   readonly name: string;
   readonly email: string;
-  readonly company?: string;
-  readonly opportunityType?: string;
+  readonly subject?: string;
   readonly message: string;
 }
 
@@ -19,11 +18,11 @@ interface EmailJSConfig {
 }
 
 function getSubjectLine(payload: SendEmailPayload): string {
-  const { name, company, opportunityType = 'Full-Time Role' } = payload;
-  if (company) {
-    return `💼 [Job Offer / ${opportunityType}] from ${company} (${name})`;
+  const { name, subject } = payload;
+  if (subject && subject.trim().length > 0) {
+    return `${subject.trim()} (via Portfolio - ${name})`;
   }
-  return `💼 [Job Opportunity / ${opportunityType}] from ${name}`;
+  return `Portfolio Contact from ${name}`;
 }
 
 function getEmailJSConfig(): EmailJSConfig | null {
@@ -42,7 +41,7 @@ async function sendViaWeb3Forms(
   accessKey: string,
   subject: string
 ): Promise<SendEmailResult> {
-  const { name, email, company = '', opportunityType = 'Full-Time Role', message } = payload;
+  const { name, email, message } = payload;
   try {
     const response = await fetch('https://api.web3forms.com/submit', {
       method: 'POST',
@@ -54,11 +53,9 @@ async function sendViaWeb3Forms(
         access_key: accessKey,
         name,
         email,
-        company: company || 'Not provided',
-        opportunity_type: opportunityType,
-        message,
         subject,
-        from_name: `${name} ${company ? `(${company})` : ''}`,
+        message,
+        from_name: name,
       }),
     });
 
@@ -66,12 +63,12 @@ async function sendViaWeb3Forms(
     if (response.ok && data.success) {
       return {
         success: true,
-        message: 'Thank you for reaching out! Your opportunity details have been sent to Suryakant.',
+        message: 'Thank you for reaching out! Your message has been sent successfully.',
       };
     }
     return {
       success: false,
-      message: data.message || 'Failed to submit form via Web3Forms.',
+      message: data.message || 'Failed to submit message via Web3Forms.',
     };
   } catch (err) {
     return {
@@ -83,9 +80,10 @@ async function sendViaWeb3Forms(
 
 async function sendViaEmailJS(
   payload: SendEmailPayload,
-  config: EmailJSConfig
+  config: EmailJSConfig,
+  subject: string
 ): Promise<SendEmailResult> {
-  const { name, email, company = '', opportunityType = 'Full-Time Role', message } = payload;
+  const { name, email, message } = payload;
   try {
     const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
       method: 'POST',
@@ -99,8 +97,7 @@ async function sendViaEmailJS(
         template_params: {
           from_name: name,
           from_email: email,
-          company,
-          opportunity_type: opportunityType,
+          subject,
           message,
           to_name: 'Suryakant Tripathi',
           reply_to: email,
@@ -111,7 +108,7 @@ async function sendViaEmailJS(
     if (response.ok) {
       return {
         success: true,
-        message: 'Thank you for reaching out! Your opportunity details have been sent to Suryakant.',
+        message: 'Thank you for reaching out! Your message has been sent successfully.',
       };
     }
 
@@ -129,22 +126,20 @@ async function sendViaEmailJS(
 }
 
 function createMailtoFallback(payload: SendEmailPayload, subject: string): SendEmailResult {
-  const { name, email, company = '', opportunityType = 'Full-Time Role', message } = payload;
+  const { name, email, message } = payload;
   const encodedSubject = encodeURIComponent(subject);
-  const encodedBody = encodeURIComponent(
-    `Name: ${name}\nEmail: ${email}\nCompany: ${company || 'N/A'}\nOpportunity Type: ${opportunityType}\n\nDetails / Job Description:\n${message}`
-  );
+  const encodedBody = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
   const mailtoUrl = `mailto:suryakant.trip@gmail.com?subject=${encodedSubject}&body=${encodedBody}`;
 
   return {
     success: true,
-    message: 'Message ready! Since direct API keys are not yet set, opening your email app.',
+    message: 'Message ready! Opening your email client to send.',
     fallbackMailto: mailtoUrl,
   };
 }
 
 /**
- * Sends a job opportunity / contact message using free browser-compatible email delivery services:
+ * Sends a contact message using free browser-compatible email delivery services:
  * 1. Web3Forms (zero-setup free tier, simple access key)
  * 2. EmailJS (popular free tier, 200 emails/month)
  * 3. Graceful fallback to mailto link if no API keys are provided
@@ -159,7 +154,7 @@ export async function sendContactEmail(payload: SendEmailPayload): Promise<SendE
 
   const emailjsConfig = getEmailJSConfig();
   if (emailjsConfig) {
-    return sendViaEmailJS(payload, emailjsConfig);
+    return sendViaEmailJS(payload, emailjsConfig, subjectLine);
   }
 
   return createMailtoFallback(payload, subjectLine);
