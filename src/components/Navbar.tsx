@@ -84,6 +84,7 @@ export default function Navbar() {
         {/* Logo */}
         <motion.button
           onClick={() => handleClick('#hero')}
+          aria-label="Surya.dev - Back to top"
           className="flex items-center gap-2.5 font-mono text-sm font-semibold"
           style={{ color: 'var(--text-0)' }}
           whileHover={{ scale: 1.02 }}

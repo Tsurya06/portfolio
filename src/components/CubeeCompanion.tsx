@@ -613,6 +613,7 @@ export default function CubeeCompanion() {
           color: 'var(--text-1)',
         }}
         title="Click to toggle Cubee follower on or off"
+        aria-label="Toggle Cubee companion follower"
       >
         <EyeOff size={11} />
         <span>Cubee Active</span>

@@ -1,14 +1,17 @@
+import { lazy, Suspense } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
-import About from '@/components/About';
-import Skills from '@/components/Skills';
-import Projects from '@/components/Projects';
-import Experience from '@/components/Experience';
-import Contact from '@/components/Contact';
-import Footer from '@/components/Footer';
 import GalaxyBackground from '@/components/GalaxyBackground';
-import CubeeCompanion from '@/components/CubeeCompanion';
+
+// Lazy-load below-the-fold sections & companion for blazing fast initial FCP/LCP
+const About = lazy(() => import('@/components/About'));
+const Skills = lazy(() => import('@/components/Skills'));
+const Projects = lazy(() => import('@/components/Projects'));
+const Experience = lazy(() => import('@/components/Experience'));
+const Contact = lazy(() => import('@/components/Contact'));
+const Footer = lazy(() => import('@/components/Footer'));
+const CubeeCompanion = lazy(() => import('@/components/CubeeCompanion'));
 
 function App() {
   const { scrollYProgress } = useScroll();
@@ -30,15 +33,19 @@ function App() {
 
       <main className="relative" style={{ zIndex: 10 }}>
         <Hero />
-        <About />
-        <Skills />
-        <Projects />
-        <Experience />
-        <Contact />
+        <Suspense fallback={null}>
+          <About />
+          <Skills />
+          <Projects />
+          <Experience />
+          <Contact />
+        </Suspense>
       </main>
 
-      <Footer />
-      <CubeeCompanion />
+      <Suspense fallback={null}>
+        <Footer />
+        <CubeeCompanion />
+      </Suspense>
 
     </div>
   );
