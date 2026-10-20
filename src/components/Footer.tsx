@@ -28,6 +28,7 @@ export default function Footer() {
           {/* Logo */}
           <motion.button
             onClick={scrollToTop}
+            aria-label="Surya.dev - Back to top"
             className="flex items-center gap-2.5 font-mono text-lg font-bold"
             style={{ color: 'var(--text-0)' }}
             whileHover={{ scale: 1.05 }}
@@ -76,6 +77,7 @@ export default function Footer() {
 
           <motion.button
             onClick={scrollToTop}
+            aria-label="Back to top"
             className="flex items-center gap-2 text-xs font-mono"
             style={{ color: 'var(--text-1)' }}
             whileHover={{ y: -2, color: 'var(--accent)' }}

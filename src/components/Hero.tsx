@@ -278,6 +278,7 @@ export default function Hero() {
             <div className="flex flex-wrap items-center gap-3 mb-8">
               <button
                 onClick={() => scrollToElement('#projects')}
+                aria-label="View My Work"
                 className="px-6 py-3.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
                 style={{ background: 'var(--accent)', color: 'var(--bg-0)' }}
               >
@@ -286,6 +287,7 @@ export default function Hero() {
               </button>
               <button
                 onClick={() => scrollToElement('#contact')}
+                aria-label="Let's Talk"
                 className="px-6 py-3.5 rounded-xl text-sm font-semibold transition-all hover:scale-105 active:scale-95"
                 style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', color: 'var(--text-0)' }}
               >
