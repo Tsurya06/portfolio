@@ -229,14 +229,24 @@ export default function Hero() {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left: Content */}
           <div className="flex flex-col justify-center">
-            {/* Status badge */}
-            <div
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium mb-6 w-fit"
-              style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', color: 'var(--text-1)' }}
-            >
-              <span className="w-2 h-2 rounded-full status-dot" style={{ background: 'var(--accent)' }} />
-              {personalInfo.availability}
-              <Sparkles size={12} style={{ color: 'var(--accent)' }} />
+            {/* Status badge & domain pill */}
+            <div className="flex flex-wrap items-center gap-2 mb-6">
+              <div
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium w-fit"
+                style={{ background: 'var(--bg-2)', border: '1px solid var(--border)', color: 'var(--text-1)' }}
+              >
+                <span className="w-2 h-2 rounded-full status-dot" style={{ background: 'var(--accent)' }} />
+                {personalInfo.availability}
+                <Sparkles size={12} style={{ color: 'var(--accent)' }} />
+              </div>
+
+              <div
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono w-fit"
+                style={{ background: 'rgba(0, 212, 170, 0.08)', border: '1px solid rgba(0, 212, 170, 0.25)', color: 'var(--accent)' }}
+                title="Suryakant is a dev — Official Portfolio"
+              >
+                <span className="opacity-70">$</span> suryakant.is-a.dev
+              </div>
             </div>
 
             {/* Name with gradient */}
