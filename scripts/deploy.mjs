@@ -24,12 +24,12 @@ try {
   fs.cpSync('dist', tempDir, { recursive: true });
 
   console.log('🌐 3/3 Pushing to gh-pages branch...');
-  execSync(`cd "${tempDir}" && git add -A && git commit -m "deploy: ${new Date().toISOString()}" --allow-empty && git push origin gh-pages`, {
+  execSync(`cd "${tempDir}" && git add -A && git commit -m "deploy: ${new Date().toISOString()}" --allow-empty && git push origin gh-pages --force`, {
     stdio: 'inherit',
     shell: true,
   });
 
-  console.log('\n✅ Deployed successfully! Live site: https://tsurya06.github.io/portfolio/\n');
+  console.log('\n✅ Deployed successfully! Live site: https://suryakant.is-a.dev/\n');
 } finally {
   try {
     execSync(`git worktree remove --force "${tempDir}"`, { stdio: 'pipe' });
